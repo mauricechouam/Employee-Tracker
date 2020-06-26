@@ -39,11 +39,31 @@ function start() {
         "Update employee role",
         "Exit"
       ]  
-    }).then(function (ans) {
-      
-
-    
+    }).then(function (choice) {
+      if (choice.action==="view all Departments"){
+        View_Department();
+      }
+     else if (choice.action === "view all Roles"){
+        View_Roles();
+      }
+      else if (choice.action==="view all Employees"){
+        View_Employee();
+      }
+      else if (choice.action==="Add a department"){
+        Add_Department();
+      }
+      else if (choice.action==="Add a role"){
+        Add_Role();
+      }
+     else  if (choice.action === "Add a employee"){
+        Add_Employee();
+      }
+      else if (choice.action==="Update employee role"){
+        Update_Employee();
+      }
+      else if (choice.action === "Exit") {
+        connection.end();
+      } 
   })
-  
   
   } 
