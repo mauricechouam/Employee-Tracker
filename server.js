@@ -21,3 +21,29 @@ var connection = mysql.createConnection({
     if (err) throw err;
     start();
   });
+
+  // function start
+function start() {
+  inquirer 
+    .prompt({
+      name: "action",
+      type: "list",
+      message: "Choose what you would like to do",
+      choice: [
+        "view all Departments",
+        "view all Roles",
+        "view all Employees",
+        "Add a department",
+        "Add a role",
+        "Add an employee",
+        "Update employee role",
+        "Exit"
+      ]  
+    }).then(function (ans) {
+      
+
+    
+  })
+  
+  
+  } 
