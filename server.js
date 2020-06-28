@@ -22,56 +22,47 @@ connection.connect(function (err) {
   start();
 });
 
-// function start
 function start() {
   inquirer
     .prompt({
       name: "action",
       type: "list",
-      message: "Choose what you would like to do",
-      choice: [
-        "view all Departments",
-        "view all Roles",
-        "view all Employees",
+      message: "What would you like to do?",
+      choices: [
+        "View all departments",
+        "View all roles",
+        "View all employees",
         "Add a department",
         "Add a role",
         "Add an employee",
         "Update employee role",
         "Exit"
       ]
-      // if choice is verified then it will run the function specified
-    }).then(function (choice) {
-      if (choice.action === "view all Departments") {
+    })
+    .then(function (answer) {
+      if (answer.action === 'View all departments') {
         View_Department();
-      }
-      else if (choice.action === "view all Roles") {
+      } else if (answer.action === 'View all roles') {
         View_Roles();
-      }
-      else if (choice.action === "view all Employees") {
-        View_Employee();
-      }
-      else if (choice.action === "Add a department") {
-        Add_Department();
-      }
-      else if (choice.action === "Add a role") {
+      } else if (answer.action === 'View all employees') {
+        View_Employees();
+      } else if (answer.action === 'Add a department') {
+        Add_Department;
+      } else if (answer.action === 'Add a role') {
         Add_Role();
+      } else if (answer.action === 'Add an employee') {
+        Add_Employees();
+      } else if (answer.action === 'Update employee role') {
+        updateRole();
       }
-      else if (choice.action === "Add a employee") {
-        Add_Employee();
-      }
-      else if (choice.action === "Update employee role") {
-        Update_Employee();
-      }
-      else if (choice.action === "Exit") {
+      else if (answer.action === 'Exit') {
         connection.end();
       }
     })
-
 }
-function View_Department() {
-  // create var query to hold the Request
-  var query = "SELECT * FROM department";
 
+function View_Department() {
+  var query = "SELECT * FROM department";
   connection.query(query, function (err, res) {
     console.log(`DEPARTMENTS:`)
     res.forEach(department => {
@@ -80,8 +71,8 @@ function View_Department() {
     start();
   });
 };
+
 function View_Roles() {
-  // create var query to hold the Request
   var query = "SELECT * FROM role";
   connection.query(query, function (err, res) {
     console.log(`ROLES:`)
@@ -91,8 +82,8 @@ function View_Roles() {
     start();
   });
 };
-function View_Employee() {
-  // create var query to hold the Request
+
+function View_Employees() {
   var query = "SELECT * FROM employee";
   connection.query(query, function (err, res) {
     console.log(`EMPLOYEES:`)
@@ -103,9 +94,8 @@ function View_Employee() {
   });
 };
 
-function Add_Department() {
+function Add_Department {
   inquirer
-    //promt for user Input 
     .prompt({
       name: "department",
       type: "input",
@@ -116,12 +106,11 @@ function Add_Department() {
       connection.query(query, answer.department, function (err, res) {
         console.log(`You have added this department: ${(answer.department).toUpperCase()}.`)
       })
-      View_Departments();
+      View_Department();
     })
 }
 
 function Add_Role() {
-
   connection.query('SELECT * FROM department', function (err, res) {
     if (err) throw (err);
     inquirer
@@ -173,9 +162,9 @@ function Add_Role() {
         })
       })
   })
-
 }
-function Add_Employee() {
+
+async function Add_Employees() {
   connection.query('SELECT * FROM role', function (err, result) {
     if (err) throw (err);
     inquirer
@@ -205,56 +194,128 @@ function Add_Employee() {
         }
       }
       ])
-  })
-    // in order to get the id here, i need a way to grab it from the departments table 
-    .then(function (answer) {
-      console.log(answer);
-      const role = answer.roleName;
-      connection.query('SELECT * FROM role', function (err, res) {
-        if (err) throw (err);
-        let filteredRole = res.filter(function (res) {
-          return res.title == role;
+      // in order to get the id here, i need a way to grab it from the departments table 
+      .then(function (answer) {
+        console.log(answer);
+        const role = answer.roleName;
+        connection.query('SELECT * FROM role', function (err, res) {
+          if (err) throw (err);
+          let filteredRole = res.filter(function (res) {
+            return res.title == role;
+          })
+          let roleId = filteredRole[0].id;
+          connection.query("SELECT * FROM employee", function (err, res) {
+            inquirer
+              .prompt([
+                {
+                  name: "manager",
+                  type: "list",
+                  message: "Who is your manager?",
+                  choices: function () {
+                    managersArray = []
+                    res.forEach(res => {
+                      managersArray.push(
+                        res.last_name)
+
+                    })
+                    return managersArray;
+                  }
+                }
+              ]).then(function (managerAnswer) {
+                const manager = managerAnswer.manager;
+                connection.query('SELECT * FROM employee', function (err, res) {
+                  if (err) throw (err);
+                  let filteredManager = res.filter(function (res) {
+                    return res.last_name == manager;
+                  })
+                  let managerId = filteredManager[0].id;
+                  console.log(managerAnswer);
+                  let query = "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)";
+                  let values = [answer.firstName, answer.lastName, roleId, managerId]
+                  console.log(values);
+                  connection.query(query, values,
+                    function (err, res, fields) {
+                      console.log(`You have added this employee: ${(values[0]).toUpperCase()}.`)
+                    })
+                  View_Employees();
+                })
+              })
+          })
         })
-        let roleId = filteredRole[0].id;
-        connection.query("SELECT * FROM employee", function (err, res) {
+      })
+  })
+}
+
+function updateRole() {
+  connection.query('SELECT * FROM employee', function (err, result) {
+    if (err) throw (err);
+    inquirer
+      .prompt([
+        {
+          name: "employeeName",
+          type: "list",
+          // is there a way to make the options here the results of a query that selects all departments?`
+          message: "Which employee's role is changing?",
+          choices: function () {
+            employeeArray = [];
+            result.forEach(result => {
+              employeeArray.push(
+                result.last_name
+              );
+            })
+            return employeeArray;
+          }
+        }
+      ])
+      // in order to get the id here, i need a way to grab it from the departments table 
+      .then(function (answer) {
+        console.log(answer);
+        const name = answer.employeeName;
+        /*const role = answer.roleName;
+        connection.query('SELECT * FROM role', function(err, res) {
+            if (err) throw (err);
+            let filteredRole = res.filter(function(res) {
+                return res.title == role;
+            })
+        let roleId = filteredRole[0].id;*/
+        connection.query("SELECT * FROM role", function (err, res) {
           inquirer
             .prompt([
               {
-                name: "manager",
+                name: "role",
                 type: "list",
-                message: "Who is your manager?",
+                message: "What is their new role?",
                 choices: function () {
-                  managersArray = []
+                  rolesArray = [];
                   res.forEach(res => {
-                    managersArray.push(
-                      res.last_name)
+                    rolesArray.push(
+                      res.title)
 
                   })
-                  return managersArray;
+                  return rolesArray;
                 }
               }
-            ]).then(function (managerAnswer) {
-              const manager = managerAnswer.manager;
-              connection.query('SELECT * FROM employee', function (err, res) {
+            ]).then(function (rolesAnswer) {
+              const role = rolesAnswer.role;
+              console.log(rolesAnswer.role);
+              connection.query('SELECT * FROM role WHERE title = ?', [role], function (err, res) {
                 if (err) throw (err);
-                let filteredManager = res.filter(function (res) {
-                  return res.last_name == manager;
-                })
-                let managerId = filteredManager[0].id;
-                console.log(managerAnswer);
-                let query = "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)";
-                let values = [answer.firstName, answer.lastName, roleId, managerId]
+                let roleId = res[0].id;
+                let query = "UPDATE employee SET role_id ? WHERE last_name ?";
+                let values = [roleId, name]
                 console.log(values);
                 connection.query(query, values,
                   function (err, res, fields) {
-                    console.log(`You have added this employee: ${(values[0]).toUpperCase()}.`)
+                    console.log(`You have updated ${name}'s role to ${role}.`)
                   })
                 View_Employees();
               })
             })
         })
-      })
-    })
 
+        //})
+      })
+  })
 
 }
+
