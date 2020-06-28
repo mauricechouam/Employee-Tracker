@@ -77,3 +77,13 @@ function View_Department() {
       start();
       });
   };
+  function View_Roles() {
+    var query = "SELECT * FROM role";
+        connection.query(query, function(err, res) {
+            console.log(`ROLES:`)
+        res.forEach(role => {
+            console.log(`ID: ${role.id} | Title: ${role.title} | Salary: ${role.salary} | Department ID: ${role.department_id}`);
+        })
+        start();
+        });
+    };
