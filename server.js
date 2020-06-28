@@ -64,9 +64,15 @@ var connection = mysql.createConnection({
 function viewDepartments() {
     var query = "SELECT * FROM department";
       connection.query(query, function(err, res) {
-          console.log(`DEPARTMENTS:`)
+        console.log(`DEPARTMENTS:`)
+        console.log(`ID:                          Name: `)
+        console.log("=========================================")
         res.forEach(department => {
-            console.log(`ID: ${department.id} | Name: ${department.name}`)
+
+          console.log(` ${department.id}                        ${department.name}`)
+          console.log("---                       --------------")
+         
+          
         })
         start();
         });
@@ -75,9 +81,11 @@ function viewDepartments() {
 function viewRoles() {
     var query = "SELECT * FROM role";
         connection.query(query, function(err, res) {
-            console.log(`ROLES:`)
+          console.log(`ROLES:`)
+          console.log("==================================================================================================")
         res.forEach(role => {
-            console.log(`ID: ${role.id} | Title: ${role.title} | Salary: ${role.salary} | Department ID: ${role.department_id}`);
+          console.log(`ID:  ${role.id} |     Title:  ${role.title} |     Salary:  ${role.salary} |     Department ID:  ${role.department_id}`);
+          console.log("-------------------------------------------------------------------------------------------------")
         })
         start();
         });
@@ -86,9 +94,11 @@ function viewRoles() {
 function viewEmployees() {
     var query = "SELECT * FROM employee";
         connection.query(query, function(err, res) {
-            console.log(`EMPLOYEES:`)
+          console.log(`EMPLOYEES:`)
+          console.log("==========================================================================")
         res.forEach(employee => {
-            console.log(`ID: ${employee.id} | Name: ${employee.first_name} ${employee.last_name} | Role ID: ${employee.role_id} | Manager ID: ${employee.manager_id}`);
+          console.log(`ID: ${employee.id}   |    Name: ${employee.first_name} ${employee.last_name}   |   Role ID: ${employee.role_id}    |  Manager ID: ${employee.manager_id}`);
+          console.log("-----------------------------------------------------------------------------")
         })
         start();
         });
@@ -271,13 +281,7 @@ function updateRole() {
         .then(function(answer) {
         console.log(answer);
         const name = answer.employeeName;
-        /*const role = answer.roleName;
-        connection.query('SELECT * FROM role', function(err, res) {
-            if (err) throw (err);
-            let filteredRole = res.filter(function(res) {
-                return res.title == role;
-            })
-        let roleId = filteredRole[0].id;*/
+        
         connection.query("SELECT * FROM role", function(err, res) {
                 inquirer
                 .prompt ([
@@ -300,7 +304,7 @@ function updateRole() {
                     console.log(rolesAnswer.role);
                 connection.query('SELECT * FROM role WHERE title = ?', [role], function(err, res) {
                 if (err) throw (err);
-                    let roleId = res[0].id;
+                    let roleId = res.id;
                     let query = "UPDATE employee SET role_id ? WHERE last_name ?";
                     let values = [roleId, name]
                     console.log(values);
