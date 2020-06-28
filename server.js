@@ -151,7 +151,29 @@ function Add_Role() {
         }
       }
       ])
+    // in order to get the id here, i need a way to grab it from the departments table 
+    .then(function(answer) {
+      const department = answer.departmentName;
+      connection.query('SELECT * FROM DEPARTMENT', function(err, res) {
+      
+          if (err) throw (err);
+       let filteredDept = res.filter(function(res) {
+          return res.name == department;
+      }
+      )
+      let id = filteredDept[0].id;
+     let query = "INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)";
+     let values = [answer.title, parseInt(answer.salary), id]
+     console.log(values);
+      connection.query(query, values,
+          function(err, res, fields) {
+          console.log(`You have added this role: ${(values[0]).toUpperCase()}.`)
+      })
+          viewRoles()
+          })
+      })
   })
+
 
 
 
