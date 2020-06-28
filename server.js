@@ -86,4 +86,15 @@ function View_Department() {
         })
         start();
         });
-    };
+};
+function View_Employee() {
+  var query = "SELECT * FROM employee";
+      connection.query(query, function(err, res) {
+          console.log(`EMPLOYEES:`)
+      res.forEach(employee => {
+          console.log(`ID: ${employee.id} | Name: ${employee.first_name} ${employee.last_name} | Role ID: ${employee.role_id} | Manager ID: ${employee.manager_id}`);
+      })
+      start();
+      });
+};
+  
