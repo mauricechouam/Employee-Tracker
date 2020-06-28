@@ -39,6 +39,7 @@ function start() {
         "Update employee role",
         "Exit"
       ]  
+      // if choice is verified then it will run the function specified
     }).then(function (choice) {
       if (choice.action==="view all Departments"){
         View_Department();
@@ -68,7 +69,9 @@ function start() {
   
 } 
 function View_Department() {
+  // create var query to hold the Request
   var query = "SELECT * FROM department";
+
     connection.query(query, function(err, res) {
         console.log(`DEPARTMENTS:`)
       res.forEach(department => {
@@ -77,7 +80,8 @@ function View_Department() {
       start();
       });
   };
-  function View_Roles() {
+function View_Roles() {
+     // create var query to hold the Request
     var query = "SELECT * FROM role";
         connection.query(query, function(err, res) {
             console.log(`ROLES:`)
@@ -88,6 +92,7 @@ function View_Department() {
         });
 };
 function View_Employee() {
+   // create var query to hold the Request
   var query = "SELECT * FROM employee";
       connection.query(query, function(err, res) {
           console.log(`EMPLOYEES:`)
@@ -98,3 +103,19 @@ function View_Employee() {
       });
 };
   
+function Add_Department() {
+  inquirer
+    //promt for user Input 
+      .prompt({
+          name: "department",
+          type: "input",
+          message: "What is the name of the new department?",
+        })
+      .then(function(answer) {
+      var query = "INSERT INTO department (name) VALUES ( ? )";
+      connection.query(query, answer.department, function(err, res) {
+          console.log(`You have added this department: ${(answer.department).toUpperCase()}.`)
+      })
+      viewDepartments();
+      })
+}
